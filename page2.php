@@ -1,5 +1,5 @@
 <?php
-	$author_name = "Andrus Rinde";
+	$author_name = "Raul Raudsepp";
 	
 	//vaatan, mida POST meetodil saadeti
 	//var_dump($_POST);
