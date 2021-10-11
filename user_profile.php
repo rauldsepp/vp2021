@@ -16,7 +16,12 @@
 	require_once("fnc_general.php");
 
 	$notice = null;
-	$description = null;//tulevikus loetakse siia andmetabelist olemasolev kirjeldus
+	$description = read_user_description();
+	
+	if(isset($_POST["profile_submit"])){
+		$description = test_input(filter_var($_POST["description_input"], FILTER_SANITIZE_STRING));
+		$notice =  store_user_profile($description, $_POST["bg_color_input"], $_POST["text_color_input"]);
+	}
 
 	require_once("page_header.php");
 ?>
@@ -38,7 +43,8 @@
 		<label for="bg_color_input">Taustavärv</label>
 		<input type="color" name="bg_color_input" id="bg_color_input" value="<?php echo $_SESSION["bg_color"]; ?>">
 		<br>
-		<label for="text_color_input">Tekstivärv</label>
+		<label for="text_color_input">Teksti värv</label>
+		<br>
 		<input type="color" name="text_color_input" id="text_color_input" value="<?php echo $_SESSION["text_color"]; ?>">
 		<br>
         <input type="submit" name="profile_submit" value="Salvesta">
