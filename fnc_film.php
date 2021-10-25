@@ -1,6 +1,8 @@
 <?php
 	$database = "if21_raul_ra";
 	
+	
+
 	function read_all_films(){
 		//loome andebaasiühenduse mysqli | server, kasutaja, parool, andmebaas
 		$conn = new mysqli($GLOBALS["server_host"], $GLOBALS["server_user_name"], $GLOBALS["server_password"], $GLOBALS["database"]);
@@ -13,6 +15,7 @@
 		$stmt->bind_result($title_from_db, $year_from_db, $duration_from_db, $genre_from_db, $studio_from_db, $director_from_db);
 		//täidan käsu
 		$film_html = null;
+		$new_value = null;
 		$stmt->execute();
 		//võtan kirjeid kuni jätkub
 		while($stmt->fetch()){
@@ -24,7 +27,20 @@
 			$film_html .= "\n <h3>" .$title_from_db ."</h3> \n";
 			$film_html .= "<ul> \n";
 			$film_html .="<li>Valmimisaasta: " .$year_from_db ."</li> \n";
-			$film_html .="<li>Kestus: " .$duration_from_db ." minutit</li> \n";
+			if($duration_from_db >= 120){
+				$duration_from_db -= 120;
+				$new_value = $duration_from_db;
+				$duration_from_db = "2 tundi ";
+				$film_html .="<li>Kestus: " .$duration_from_db .$new_value ." minutit</li>";
+			} elseif($duration_from_db >= 60){
+				$duration_from_db -= 60;
+				$new_value = $duration_from_db;
+				$duration_from_db = "1 tund ";
+				$film_html .="<li>Kestus: " .$duration_from_db .$new_value ." minutit</li>";
+			} else {
+				$film_html .="<li>Kestus: " .$duration_from_db ." minutit</li>";
+			}
+			//$film_html .="<li>Kestus: " .$duration_from_db ." minutit</li> \n";
 			$film_html .="<li>Žanr: " .$genre_from_db ."</li> \n";
 			$film_html .="<li>Tootja: " .$studio_from_db ."</li> \n";
 			$film_html .="<li>Lavastaja: " .$director_from_db ."</li> \n";
