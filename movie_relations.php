@@ -14,174 +14,149 @@
     require_once("../../config.php");
     require_once("fnc_movie.php");
 	require_once("fnc_general.php");
-
-	$notice = null;
-	
-	$person_in_movie_notice = null;
-	$selected_person_for_relation = null;
-	$selected_movie_for_relation = null;
-	$selected_position_for_relation = null;
-	$role = null;
-	
-	if(isset($_POST["person_in_movie_submit"])){
-		if(isset($_POST["person_select"]) and !empty($_POST["person_select"])){
-			$selected_person_for_relation = filter_var($_POST["person_select"], FILTER_VALIDATE_INT);
-		}
-		if(empty($selected_person_for_relation)){
-			$person_in_movie_notice .= "Isik on valimata! ";
-		}
-		if(isset($_POST["movie_select"]) and !empty($_POST["movie_select"])){
-			$selected_movie_for_relation = filter_var($_POST["movie_select"], FILTER_VALIDATE_INT);
-		}
-		if(empty($selected_movie_for_relation)){
-			$person_in_movie_notice .= "Film on valimata! ";
-		}
-		if(isset($_POST["position_select"]) and !empty($_POST["position_select"])){
-			$selected_position_for_relation = filter_var($_POST["position_select"], FILTER_VALIDATE_INT);
-		}
-		if(empty($selected_position_for_relation)){
-			$person_in_movie_notice .= "Amet on valimata! ";
-		}
-		if($selected_position_for_relation == 1){
-			if(isset($_POST["role_input"]) and !empty($_POST["role_input"])){
-				$role = test_input(filter_var($_POST["role_input"], FILTER_SANITIZE_STRING));
-			}
-			if(empty($role)){
-				$person_in_movie_notice .= "Roll on kirja panemata! ";
-			}
-		}
-		if(empty($person_in_movie_notice)){
-			$person_in_movie_notice = store_person_in_movie($selected_person_for_relation, $selected_movie_for_relation, $selected_position_for_relation, $role);
-		}
-	}
-	$photo_upload_notice = null;
-	$selected_person_for_photo = null;
-	$person_photo_dir = "person_photos/";
-	$file_type = null;
-	$file_name = null;
-	
-	if(isset($_POST["person_photo_submit"])){
-		//var_dump($_POST);
-		//var_dump($_FILES);
-		$image_check = getimagesize($_FILES["photo_input"]["tmp_name"]);
-		if($image_check !== false){
-			if($image_check["mime"] == "image/jpeg"){
-				$file_type = "jpg";
-			}
-			if($image_check["mime"] == "image/png"){
-				$file_type = "png";
-			}
-			if($image_check["mime"] == "image/gif"){
-				$file_type = "gif";
-			}
-			
-			//teen ajatempli
-			$time_stamp = microtime(1) * 10000;
-			
-			//moodustan failinime
-			
-			$file_name = "person_" .$_POST["person_select_for_photo"] ."_" .$time_stamp ."." .$file_type;
-			
-			if(move_uploaded_file($_FILES["photo_input"]["tmp_name"], $person_photo_dir .$file_name)){
-				$photo_upload_notice = store_person_photo($file_name, $_POST["person_select_for_photo"]);
-			} else {
-				$photo_upload_notice = "Foto üleslaadimine ei õnnestunud!";
-			}
-		}
-				
-	}
-	
-	$movie_genre_notice = null;
-	$selected_genre_for_relation = null;
-	$selected_movie_for_relation = null;
-	
-	if(isset($_POST["movie_genre_submit"])){
-		if(isset($_POST["movie_select"]) and !empty($_POST["movie_select"])){
-			$selected_movie_for_relation = filter_var($_POST["movie_select"], FILTER_VALIDATE_INT);
-		}
-		if(empty($selected_movie_for_relation)){
-			$movie_genre_notice .= "Film on valimata! ";
-		}
-		if(isset($_POST["genre_select"]) and !empty($_POST["genre_select"])){
-			$selected_genre_for_relation = filter_var($_POST["genre_select"], FILTER_VALIDATE_INT);
-		}
-		if(empty($selected_genre_for_relation)){
-			$movie_genre_notice .= "Žanr on valimata! ";
-		}
-		if(empty($movie_genre_notice)){
-			$movie_genre_notice = store_movie_genre($selected_movie_for_relation, $selected_genre_for_relation);
-		}
-	}
-	
-	require_once("page_header.php");
+    
+    $person_movie_relation_notice = null;
+    $person_selected = null;
+    $movie_selected = null;
+    $position_selected = null;
+    $role = null;
+    
+    if(isset($_POST["person_movie_relation_submit"])){
+        if(isset($_POST["movie_select"]) and !empty($_POST["movie_select"])){
+            $movie_selected = filter_var($_POST["movie_select"], FILTER_VALIDATE_INT);
+        }
+        if(empty($movie_selected)){
+            $person_movie_relation_notice .= "Film on valimata! ";
+        }
+        
+        if(isset($_POST["person_select"]) and !empty($_POST["person_select"])){
+            $person_selected = filter_var($_POST["person_select"], FILTER_VALIDATE_INT);
+        }
+        if(empty($person_selected)){
+            $person_movie_relation_notice .= "Isik on valimata! ";
+        }
+        
+        if(isset($_POST["position_select"]) and !empty($_POST["position_select"])){
+            $position_selected = filter_var($_POST["position_select"], FILTER_VALIDATE_INT);
+        }
+        if(empty($position_selected)){
+            $person_movie_relation_notice .= "Amet on valimata! ";
+        }
+        
+        if($position_selected == 1){
+            if(isset($_POST["role_input"]) and !empty($_POST["role_input"])){
+                $role = test_input(filter_var($_POST["role_input"], FILTER_SANITIZE_STRING));
+            }
+            if(empty($role)){
+                $person_movie_relation_notice .= "Roll on kirjutamata! ";
+            }
+        }
+        
+        if(empty($person_movie_relation_notice)){
+            $person_movie_relation_notice = store_person_movie_relation($person_selected, $movie_selected, $position_selected, $role);
+            //echo $person_selected .$movie_selected .$position_selected .$role ."ahaa";
+        }
+    }
+    
+    $person_selected_for_photo = null;
+    $photo_upload_notice = null;
+    $person_photo_dir = "../person_photo/";
+    $file_type = null;
+    $file_name = null;
+    
+    if(isset($_POST["person_photo_submit"])){
+        //var_dump($_POST);
+        //var_dump($_FILES);
+        if(isset($_POST["person_select"]) and !empty($_POST["person_select"])){
+            $person_selected_for_photo = filter_var($_POST["person_select"], FILTER_VALIDATE_INT);
+        }
+        if(empty($person_selected_for_photo)){
+            $photo_upload_notice .= "Isik on valimata! ";
+        }
+        
+        if(isset($_FILES["photo_input"]["tmp_name"]) and !empty($_FILES["photo_input"]["tmp_name"])){
+            $image_check = getimagesize($_FILES["photo_input"]["tmp_name"]);
+            if($image_check !== false){
+                if($image_check["mime"] == "image/jpeg"){
+                    $file_type = "jpg";
+                }
+                if($image_check["mime"] == "image/png"){
+                    $file_type = "png";
+                }
+                if($image_check["mime"] == "image/gif"){
+                    $file_type = "gif";
+                }
+                
+                //teeme failinime
+                //genereerin ajatempli
+                $time_stamp = microtime(1) * 10000;
+                $file_name = "person_" .$_POST["person_select"] ."_" .$time_stamp ."." .$file_type; 
+                
+                //move_uploaded_file($_FILES["photo_input"]["tmp_name"], $person_photo_dir .$_FILES["photo_input"]["name"]);
+                
+            } else {
+                $photo_upload_notice .= "Pilt on valimata!";
+            }
+        }
+        
+        if(empty($photo_upload_notice)){
+            if(move_uploaded_file($_FILES["photo_input"]["tmp_name"], $person_photo_dir .$file_name)){
+                //pildi info andmebaasi
+                $photo_upload_notice = store_person_photo($file_name, $person_selected_for_photo);
+            }
+        }
+    }
+    
+    require("page_header.php");
 ?>
 	<h1><?php echo $_SESSION["first_name"] ." " .$_SESSION["last_name"]; ?>, veebiprogrammeerimine</h1>
-	<p>See leht on valminud õppetöö raames ja ei sisalda mingit tõsiseltvõetavat sisu!</p>
+	<p>See leht on loodud õppetöö raames ja ei sisalda tõsiseltvõetavat sisu!</p>
 	<p>Õppetöö toimub <a href="https://www.tlu.ee/dt">Tallinna Ülikooli Digitehnoloogiate instituudis</a>.</p>
-	<p>Õppetöö toimus 2021 sügisel.</p>
 	<hr>
-	<ul>
-		<li><a href="?logout=1">Logi välja</a></li>
+    <ul>
+        <li><a href="?logout=1">Logi välja</a></li>
 		<li><a href="home.php">Avaleht</a></li>
-	</ul>
+    </ul>
 	<hr>
-    <h2>Filmi info seostamine</h2>
-	<h3>Film, inimene ja tema roll</h3>
+    <h2>Filmi info seoste loomine</h2>
+    <h3>Film, isik ja amet</h3>
     <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
-		<label for="person_select">Isik: </label>
-		<select name="person_select" id="person_select">
-			<option value="" selected disabled>Vali isik</option>
-			<?php echo read_all_person_for_option($selected_person_for_relation); ?>
-		</select>
+        <label for="movie_select">Film: </label>
+        <select name="movie_select" id="movie_select">
+            <option value="" selected disabled>Film</option>
+            <?php echo read_all_movie_for_select($movie_selected); ?>
+        </select>
 
-		<label for="movie_select">Film: </label>
-		<select name="movie_select" id="movie_select">
-			<option value="" selected disabled>Vali film</option>
-			<?php echo read_all_movie_for_option($selected_movie_for_relation); ?>
-		</select>
-		
-		<label for="position_select">Amet: </label>
-		<select name="position_select" id="position_select">
-			<option value="" selected disabled>Vali amet</option>
-			<?php echo read_all_position_for_option($selected_position_for_relation); ?>
-		</select>
-		<label for="role_input">
-		<input type="text" name="role_input" id="role_input" placeholder="tegelase nimi" value="<?php echo $role; ?>">
-		
-		<input type="submit" name="person_in_movie_submit" value="Salvesta">
+        <label for="person_select">Isik: </label>
+        <select name="person_select" id="person_select">
+            <option value="" selected disabled>Isik</option>
+            <?php echo read_all_person_for_select($person_selected); ?>
+        </select>
+        
+        <label for="position_select">Amet: </label>
+        <select name="position_select" id="position_select">
+            <option value="" selected disabled>Amet</option>
+            <?php echo read_all_position_for_select($position_selected); ?>
+        </select>
+        
+        <label for="role_input">Roll: </label>
+        <input type="text" name="role_input" id="role_input" placeholder="roll" value="<?php echo $role; ?>">
+        
+        <input type="submit" name="person_movie_relation_submit" value="Salvesta">
     </form>
-    <p><?php echo $person_in_movie_notice; ?></p>
-	<h3>Filmitegelase foto</h3>
-	<form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" enctype="multipart/form-data">
-		
-		<label for="person_select_for_photo">Isik: </label>
-		<select name="person_select_for_photo" id="person_select_for_photo">
-			<option value="" selected disabled>Vali isik</option>
-			<?php echo read_all_person_for_option($selected_person_for_photo); ?>
-		</select>
-		
-		<label for="photo_input">Vali foto fail</label>
-		<input type="file" name="photo_input" id="photo_input">
-		
-		<input type="submit" name="person_photo_submit" value="Lae pilt üles">
-	</form>
-	<p><?php echo $photo_upload_notice; ?></p>
-	<h3>Filmižanr</h3>
-	<form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
-		<label for="movie_select">Film: </label>
-		<select name="movie_select" id="movie_select">
-			<option value="" selected disabled>Vali film</option>
-			<?php echo read_all_movie_for_option($selected_movie_for_relation); ?>
-		</select>
-		<label for="genre_select">Žanr: </label>
-		<select name="genre_select" id="genre_select">
-			<option value="" selected disabled>Vali žanr</option>
-			<?php echo read_all_genre_for_option($selected_genre_for_relation); ?>
-		</select>
-	
-		<input type="submit" name="movie_genre_submit" value="Salvesta">
-	
+    <span><?php echo $person_movie_relation_notice; ?></span>
+    <hr>
+    <h3>Filmitegelase foto lisamine</h3>
+    <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" enctype="multipart/form-data">
+        <label for="person_select_for_photo">Isik: </label>
+        <select name="person_select" id="person_select_for_photo">
+            <option value="" selected disabled>Isik</option>
+            <?php echo read_all_person_for_select($person_selected_for_photo); ?>
+        </select>
+        <input type="file" name="photo_input">
+        <input type="submit" name="person_photo_submit" value="Lae pilt üles">
     </form>
-    <p><?php echo $person_in_movie_notice; ?></p>
+    <span><?php echo $photo_upload_notice; ?></span>
+    
 </body>
 </html>

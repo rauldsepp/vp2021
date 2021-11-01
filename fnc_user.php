@@ -1,11 +1,11 @@
 <?php
-	$database = "if21_raul_ra";
-	
+    $database = "if21_raul_ra";
+    
     function sign_up($firstname, $surname, $email, $gender, $birth_date, $password){
         $notice = null;
         $conn = new mysqli($GLOBALS["server_host"], $GLOBALS["server_user_name"], $GLOBALS["server_password"], $GLOBALS["database"]);
         $conn->set_charset("utf8");
-        $stmt = $conn->prepare("SELECT id FROM vpr_users WHERE email = ?");
+		$stmt = $conn->prepare("SELECT id FROM vpr_users WHERE email = ?");
 		$stmt->bind_param("s", $email);
 		$stmt->bind_result($id_from_db);
 		$stmt->execute();
@@ -15,10 +15,10 @@
 		} else {
 			//sulgen eelmise käsu
 			$stmt->close();
-			$stmt = $conn->prepare("INSERT INTO vpr_users (firstname, lastname, birthdate, gender, email, password) VALUES(?,?,?,?,?,?)");
+			$stmt = $conn->prepare("INSERT INTO vpr_users (firstname, lastname, birthdate, gender, email, password) values(?,?,?,?,?,?)");
 			echo $conn->error;
-			//krüpteerime salasõna
-			$option = ["cost"=>12];
+			//krüpteerime parooli
+			$option = ["cost" => 12];
 			$pwd_hash = password_hash($password, PASSWORD_BCRYPT, $option);
 			$stmt->bind_param("sssiss", $firstname, $surname, $birth_date, $gender, $email, $pwd_hash);
 			if($stmt->execute()){
@@ -37,25 +37,25 @@
         $conn = new mysqli($GLOBALS["server_host"], $GLOBALS["server_user_name"], $GLOBALS["server_password"], $GLOBALS["database"]);
         $conn->set_charset("utf8");
         $stmt = $conn->prepare("SELECT id, firstname, lastname, password FROM vpr_users WHERE email = ?");
+        echo $conn->error;
         $stmt->bind_param("s", $email);
         $stmt->bind_result($id_from_db, $firstname_from_db, $lastname_from_db, $password_from_db);
-        echo $conn->error;
         $stmt->execute();
         if($stmt->fetch()){
-            //kasutaja on olemas, kontrollime parooli
+            //kasutaja on olemas, parool tuli ...
             if(password_verify($password, $password_from_db)){
-                //ongi õige
+                //parool õige, oleme sees!
 				$_SESSION["user_id"] = $id_from_db;
                 $_SESSION["first_name"] = $firstname_from_db;
                 $_SESSION["last_name"] = $lastname_from_db;
-				//siin edaspidi sisselogimisel pärime SQL-iga kasutajaprofiili, kui see on olemas, siis loeme sealt tausta- ja tekstivärvid, muidu kasutame mingeid vaikevärve
-				$stmt->close();
+                //=================================================
+                $stmt->close();
 				$stmt = $conn->prepare("SELECT bgcolor, txtcolor FROM vpr_userprofiles WHERE userid = ?");
 				$stmt->bind_param("i", $_SESSION["user_id"]);
 				$stmt->bind_result($bg_color_from_db, $txt_color_from_db);
 				$stmt->execute();
-				$_SESSION["bg_color"] = "#000000";
-                $_SESSION["text_color"] = "#FFFFFF";
+				$_SESSION["text_color"] = "#000000";
+				$_SESSION["bg_color"] = "#FFFFFF";
 				if($stmt->fetch()){
 					if(!empty($txt_color_from_db)){
 						$_SESSION["text_color"] = $txt_color_from_db;
@@ -64,20 +64,21 @@
 						$_SESSION["bg_color"] = $bg_color_from_db;
 					}
 				}
+                //=================================================
                 $stmt->close();
                 $conn->close();
                 header("Location: home.php");
                 exit();
             } else {
-                $notice = "Kasutajanimi või salasõna oli vale!";
+                $notice = "Kasutajatunnus või salasõna oli vale!";
             }
         } else {
-            $notice = "Kasutajanimi või salasõna oli vale!";
+            $notice = "Kasutajatunnus või salasõna oli vale!";
         }
         
         $stmt->close();
         $conn->close();
-        return $notice; 
+        return $notice;
     }
 	
 	function read_user_description(){

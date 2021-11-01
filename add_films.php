@@ -12,11 +12,9 @@
     }
 	
     require_once("../../config.php");
-    require_once("fnc_film.php");
+    require_once("fnc_films.php");
 	require_once("fnc_general.php");
     //echo $server_host;
-	$author_name = "Raul Raudsepp";
-	
     $film_store_notice = null;
 	$title_input = null;
 	$year_input = date("Y");
@@ -30,8 +28,8 @@
 	$genre_input_error = null;
 	$studio_input_error = null;
 	$director_input_error = null;
-	
-	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     //kas klikiti submit nuppu
 		if(isset($_POST["film_submit"])){
 			//kontrollin, et andmeid ikka sisestati
@@ -73,15 +71,20 @@
 			}
 		}
 	}
-	
-	require_once("page_header.php");
+    
+    require("page_header.php");
 ?>
 	<h1><?php echo $_SESSION["first_name"] ." " .$_SESSION["last_name"]; ?>, veebiprogrammeerimine</h1>
-	<p>See leht on valminud õppetöö raames ja ei sisalda mingit tõsiseltvõetavat sisu!</p>
+	<p>See leht on loodud õppetöö raames ja ei sisalda tõsiseltvõetavat sisu!</p>
 	<p>Õppetöö toimub <a href="https://www.tlu.ee/dt">Tallinna Ülikooli Digitehnoloogiate instituudis</a>.</p>
-	<p>Õppetöö toimus 2021 sügisel.</p>
 	<hr>
-    <h2>Eesti filmid</h2>
+    <ul>
+        <li><a href="?logout=1">Logi välja</a></li>
+		<li><a href="home.php">Avaleht</a></li>
+		<li><a href="list_films.php">Filmide nimekirja vaatamine</a> versioon 1</li>
+    </ul>
+	<hr>
+    <h2>Eesti filmide lisamine</h2>
     <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
         <label for="title_input">Filmi pealkiri</label>
         <input type="text" name="title_input" id="title_input" placeholder="filmi pealkiri" value="<?php echo $title_input; ?>"><span><?php echo $title_input_error; ?></span>
@@ -108,6 +111,7 @@
         <br>
         <input type="submit" name="film_submit" value="Salvesta">
     </form>
-    <p><?php echo $film_store_notice; ?></p>
+    <span><?php echo $film_store_notice; ?></span>
+    
 </body>
 </html>
