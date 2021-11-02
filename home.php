@@ -25,6 +25,8 @@
         <li><a href="movie_relations.php">Filmi, isiku jms seoste loomine</a></li>
         <li><a href="list_movie_info.php">Isikute ja filmide info</a></li>
         <li><a href="gallery_photo_upload.php">Galeriipiltide üleslaadimine</a></li>
-    </ul>
+		<li><a href="gallery_public.php">Sisseloginud kasutajatele avalike fotode galerii</a></li>
+		<li><a href="gallery_own.php">Minu fotode galerii</a></li>
+	</ul>
 </body>
 </html>
